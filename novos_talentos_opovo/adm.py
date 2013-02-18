@@ -17,6 +17,8 @@
 # adm.py novos_talentos_opovo
 # modificado por Eric Mesquita em 17/12/2012
 #
+from publica import settings
+from xlwt import *
 from time import time, strftime, strptime
 from urllib import unquote
 from publica.admin.error import UserError
@@ -443,5 +445,98 @@ class Adm(object):
         self._addLog("Curso editado '%s'" % titulo)
         return "Curso editado com sucesso."
 
+    def exportaXls(self, id_conteudo):
+        n = self._getConteudo(id_conteudo)
+        titulo = n['titulo'].replace(' ', '').replace('ª', '').lower()
+        cadastros = [i for i in self._getConteudoCadastros(id_conteudo=id_conteudo)]
+        array1 = ['id_cadastro', 'id_conteudo', 'nome_completo', 'idade', 'data_nascimento', 'cpf', 'local_nascimento', 'nacionalidade', 'sexo', 'estado_civil', 'filhos', 'qtd_filhos', 'rua', 'numero', 'complemento', 'bairro', 'cep', 'cidade', 'estado', 'fone_fixo', 'fone_celular', 'email_principal', 'email_alternativo', 'faculdade_cursa', 'semestre', 'inicio_curso']
+        array2 = ['inicio_medio', 'conclusao_medio', 'instituicao_medio']
+        array3 = ['trabalha_opovo', 'setor_opovo', 'funcao_opovo', 'ativo_opovo', 'saida_opovo', 'participou', 'edicao_participou', 'fase_participou', 'portador', 'qual_necessidade', 'selecionado', 'data_hora_cadastro']
+        arrayCs = ['id_curso_superior', 'data_inicio', 'data_conclusao', 'instituicao', 'curso']
+        arrayId = ['id_idioma', 'idioma', 'grau_de_dominio']
+        arrayC =  ['id_curso', 'data_inicio', 'data_conclusao', 'instituicao', 'curso']
+        arrayEs =  ['id_estagio', 'atual', 'data_inicio', 'data_saida', 'empresa', 'funcao', 'horario']
+        arrayEm =  ['id_emprego', 'atual', 'data_inicio', 'data_saida', 'empresa', 'funcao', 'horario']
+        wb = Workbook()
+        ws0 = wb.add_sheet('Participantes', cell_overwrite_ok=True)
+        row_number=1
+        for row in cadastros:
+            id_cadastro = row['id_cadastro']
+            column_num=0
+            for item in array1:
+                ws0.write(0,column_num,self.decoder(item))
+                ws0.write(row_number,column_num,self.decoder(row[item]))
+                column_num=column_num+1
+            cs = [i for i in self._getCadastroCursosSuperiores(id_cadastro=id_cadastro)]
+            for i in range(0,4):
+                for item in arrayCs:
+                    ws0.write(0,column_num,self.decoder(item))
+                    try:
+                        ws0.write(row_number,column_num,self.decoder(cs[i][item]))
+                    except:
+                        pass
+                    column_num=column_num+1
+            for item in array2:
+                ws0.write(0,column_num,self.decoder(item))
+                ws0.write(row_number,column_num,self.decoder(row[item]))
+                column_num=column_num+1
+            id = [i for i in self._getCadastroIdiomas(id_cadastro=id_cadastro)]
+            for i in range(0,4):
+                for item in arrayId:
+                    ws0.write(0,column_num,self.decoder(item))
+                    try:
+                        ws0.write(row_number,column_num,self.decoder(id[i][item]))
+                    except:
+                        pass
+                    column_num=column_num+1
+            c = [i for i in self._getCadastroCursos(id_cadastro=id_cadastro)]
+            for i in range(0,4):
+                for item in arrayC:
+                    ws0.write(0,column_num,self.decoder(item))
+                    try:
+                        ws0.write(row_number,column_num,self.decoder(c[i][item]))
+                    except:
+                        pass
+                    column_num=column_num+1
+            ws0.write(0,column_num,self.decoder('estagia'))
+            ws0.write(row_number,column_num,self.decoder(row['estagia']))
+            column_num=column_num+1
+            es = [i for i in self._getCadastroEstagios(id_cadastro=id_cadastro)]
+            for i in range(0,4):
+                for item in arrayEs:
+                    ws0.write(0,column_num,self.decoder(item))
+                    try:
+                        ws0.write(row_number,column_num,self.decoder(es[i][item]))
+                    except:
+                        pass
+                    column_num=column_num+1
+            ws0.write(0,column_num,self.decoder('trabalha'))
+            ws0.write(row_number,column_num,self.decoder(row['trabalha']))
+            column_num=column_num+1
+            em = [i for i in self._getCadastroEmpregos(id_cadastro=id_cadastro)]
+            for i in range(0,4):
+                for item in arrayEm:
+                    ws0.write(0,column_num,self.decoder(item))
+                    try:
+                        ws0.write(row_number,column_num,self.decoder(em[i][item]))
+                    except:
+                        pass
+                    column_num=column_num+1
+            for item in array3:
+                ws0.write(0,column_num,self.decoder(item))
+                ws0.write(row_number,column_num,self.decoder(row[item]))
+                column_num=column_num+1
+            row_number=row_number+1
+        wb.save("{0}/ns{1}/arquivos/app/{2}/{3}.xls".format(str(settings.PATH_FILES),
+                                                              str(self.id_site),
+                                                              self.schema,
+                                                              titulo))
 
-
+    def decoder(self, val):
+        """
+        """
+        try:
+            val = val.decode(settings.GLOBAL_ENCODING) 
+        except:
+            pass
+        return val
