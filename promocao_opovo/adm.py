@@ -17,6 +17,8 @@
 # adm.py cinema_opovo
 # modificado por Eric Mesquita em 12/11/2012
 #
+from publica import settings
+from xlwt import *
 from time import time, strftime, strptime
 from urllib import unquote
 from publica.admin.error import UserError
@@ -404,5 +406,38 @@ class Adm(object):
         self._addLog("Promo&ccedil;&atilde;o editada '%s'" % titulo)
         return "Promo&ccedil;&atilde;o editada com sucesso."
 
+    def exportaXls(self, id_conteudo):
+        n = self._getConteudo(id_conteudo)
+        titulo = n['titulo'].replace(' ', '').lower()
+        titulo = unicode(titulo, errors="ignore")
+        titulo = ''.join(e for e in titulo if e.isalnum())
+        cadastros = [i for i in self._getConteudoCadastros(id_conteudo=id_conteudo)]
+        campos = [i for i in self._getConteudoCampos(id_conteudo=id_conteudo)]
+        wb = Workbook()
+        ws0 = wb.add_sheet('Participantes', cell_overwrite_ok=True)
+        row_number=1
+        for row in cadastros:
+            column_num=0
+            ws0.write(0,column_num,self.decoder("sequencial"))
+            ws0.write(row_number,column_num,self.decoder(row['sequencial']))
+            column_num=column_num+1
+            for item in campos:
+                ws0.write(0,column_num,self.decoder(item['nome']))
+                ws0.write(row_number,column_num,self.decoder(row[item['nome']]))
+                column_num=column_num+1
+            ws0.write(0,column_num,self.decoder("data_hora_cadastro"))
+            ws0.write(row_number,column_num,self.decoder(row['data_hora_cadastro']))
+            row_number=row_number+1
+        wb.save("{0}/ns{1}/arquivos/app/{2}/{3}.xls".format(str(settings.PATH_FILES),
+                                                              str(self.id_site),
+                                                              self.schema,
+                                                              titulo))
 
-
+    def decoder(self, val):
+        """
+        """
+        try:
+            val = val.decode(settings.GLOBAL_ENCODING) 
+        except:
+            pass
+        return val

@@ -447,7 +447,9 @@ class Adm(object):
 
     def exportaXls(self, id_conteudo):
         n = self._getConteudo(id_conteudo)
-        titulo = n['titulo'].replace(' ', '').replace('ª', '').lower()
+        titulo = n['titulo'].replace(' ', '').lower()
+        titulo = unicode(titulo, errors="ignore")
+        titulo = ''.join(e for e in titulo if e.isalnum())
         cadastros = [i for i in self._getConteudoCadastros(id_conteudo=id_conteudo)]
         array1 = ['id_cadastro', 'id_conteudo', 'nome_completo', 'idade', 'data_nascimento', 'cpf', 'local_nascimento', 'nacionalidade', 'sexo', 'estado_civil', 'filhos', 'qtd_filhos', 'rua', 'numero', 'complemento', 'bairro', 'cep', 'cidade', 'estado', 'fone_fixo', 'fone_celular', 'email_principal', 'email_alternativo', 'faculdade_cursa', 'semestre', 'inicio_curso']
         array2 = ['inicio_medio', 'conclusao_medio', 'instituicao_medio']
