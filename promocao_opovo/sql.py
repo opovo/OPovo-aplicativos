@@ -96,11 +96,11 @@ insert_conteudo_campo = ("INSERT INTO rschemar.conteudo_campo (id_conteudo, "
 
 insert_cadastro = ("INSERT INTO rschemar.cadastro (id_cadastro, id_conteudo, sequencial, cpf, "
 "rg, data_nascimento, nome, endereco, complemento, bairro, cep, email, profissao, faculdade, "
-"curso, facebook, twitter, fone1, fone2, fone3, anexo, frase, opt_parceiro, "
+"curso, facebook, twitter, fone1, fone2, fone3, anexo, frase, opt_midia, opt_leitor, opt_cenario, opt_conhecimento, opt_parceiro, "
 "opt_opovo, data_hora_cadastro) VALUES (%(id_cadastro)i, %(id_conteudo)i, %(sequencial)i, %(cpf)s, %(rg)s, "
 "%(data_nascimento)s, %(nome)s, %(endereco)s, %(complemento)s, %(bairro)s, %(cep)s, %(email)s, "
 "%(profissao)s, %(faculdade)s, %(curso)s, %(facebook)s, %(twitter)s, %(fone1)s, %(fone2)s, %(fone3)s, %(anexo)s, "
-"%(frase)s, %(opt_parceiro)s, %(opt_opovo)s, now())")
+"%(frase)s, %(opt_midia)s, %(opt_leitor)s, %(opt_cenario)s, %(opt_conhecimento)s, %(opt_parceiro)s, %(opt_opovo)s, now())")
 
 update_conteudo = ("UPDATE rschemar.conteudo SET titulo=%(titulo)s, cartola=%(cartola)s, "
 "descricao=%(descricao)s, editor=%(editor)s, editor2=%(editor2)s, regulamento=%(regulamento)s, imagem_topo_list=%(imagem_topo_list)s, imagem_rodape=%(imagem_rodape)s, "
@@ -184,6 +184,10 @@ structure = """
     fone2 VARCHAR NULL,
     fone3 VARCHAR NULL,
     frase VARCHAR NULL,
+    opt_midia VARCHAR NULL,
+    opt_leitor VARCHAR NULL,
+    opt_cenario VARCHAR NULL,
+    opt_conhecimento VARCHAR NULL,
     anexo VARCHAR NULL,
     opt_opovo BOOLEAN DEFAULT 'False',
     opt_parceiro BOOLEAN DEFAULT 'False',
@@ -246,4 +250,8 @@ structure = """
   INSERT INTO rschemar.campo (id_campo, nome, codigo) VALUES (19, 'anexo', '<p class="full"><label for="anexo" class="error">Anexo:<span class=obrigatorio>*</span></label><input type="file" name="anexo" id="anexo" class="required"/><span>(Tamanho máximo do arquivo: 5Mb)</span></p>');
   INSERT INTO rschemar.campo (id_campo, nome, codigo) VALUES (20, 'opt_opovo', '<p class="full"><input type="checkbox" name="opt_opovo" id="opt_opovo" checked/><label class="fullCheck" for="opt_opovo">Quero ser informado sobre promoções e ofertas do Grupo de Comunicação O POVO.</label></p>'); 
   INSERT INTO rschemar.campo (id_campo, nome, codigo) VALUES (21, 'opt_parceiro', '<p class="full"><input type="checkbox" name="opt_parceiro" id="opt_parceiro" checked/><label class="fullCheck" for="opt_parceiro">Quero ser informado sobre promoções e ofertas de parceiros de Grupo de Comunicação OPOVO.</label></p>'); 
+  INSERT INTO rschemar.campo (id_campo, nome, codigo) VALUES (22, 'opt_midia', '<p class="full"><label for="opt_midia" class="error hidden"></label><label>Você lê O POVO em que tipo de mídia?<span class="obrigatorio">*</span></label><input type="radio" name="opt_midia" id="opt_midia_impressa" value="Impressa"><label for="opt_midia_impressa" class="error radio-label">Impressa</label><input type="radio" name="opt_midia" id="opt_midia_digital" value="Digital"><label for="opt_midia_digital" class="error radio-label">Digital</label><input type="radio" name="opt_midia" id="opt_midia_ambas" value="Ambas"><label for="opt_midia_ambas" class="error radio-label">Ambas</label></p>');
+  INSERT INTO rschemar.campo (id_campo, nome, codigo) VALUES (23, 'opt_leitor', '<p class="full"><label for="opt_leitor" class="error hidden"></label><label>O que lhe faz ser leitor O POVO?<span class="obrigatorio">*</span></label><input type="radio" name="opt_leitor" id="opt_leitor_credibilidade" value="Credibilidade"><label for="opt_leitor_credibilidade" class="error radio-label">Credibilidade</label><input type="radio" name="opt_leitor" id="opt_leitor_colunistas" value="Colunistas"><label for="opt_leitor_colunistas" class="error radio-label">Colunistas</label><input type="radio" name="opt_leitor" id="opt_leitor_design_diagramacao" value="Design/Diagramação"><label for="opt_leitor_design_diagramacao" class="error radio-label">Design/Diagramação</label><input type="radio" name="opt_leitor" id="opt_leitor_imparcialidade" value="Imparcialidade"><label for="opt_leitor_imparcialidade" class="error radio-label">Imparcialidade</label><input type="radio" name="opt_leitor" value="" id="opt_leitor_outros_radio"><label for="opt_leitor_outros_radio" class="error radio-label">Outro</label><input type="text" class="outros-text" id="opt_leitor_outros_text" readonly></p>');
+  INSERT INTO rschemar.campo (id_campo, nome, codigo) VALUES (24, 'opt_cenario', '<p class="full"><label for="opt_cenario" class="error hidden"></label><label>Você conhece a revista O POVO Cenário?<span class="obrigatorio">*</span></label><input type="radio" name="opt_cenario" id="opt_cenario_sim" value="Sim"><label for="opt_cenario_sim" class="error radio-label">Sim</label><input type="radio" name="opt_cenario" id="opt_cenario_nao" value="Não"><label for="opt_cenario_nao" class="error radio-label">Não</label></p>');
+  INSERT INTO rschemar.campo (id_campo, nome, codigo) VALUES (25, 'opt_conhecimento', '<p class="full hidden conhecimento"><label for="opt_conhecimento" class="error hidden"></label><label>Como tomou conhecimento?<span class="obrigatorio">*</span></label><input type="radio" name="opt_conhecimento" id="opt_conhecimento_anuncios" value="Anúncios"><label for="opt_conhecimento_anuncios" class="error radio-label">Anúncios</label><input type="radio" name="opt_conhecimento" id="opt_conhecimento_bancas" value="Bancas"><label for="opt_conhecimento_bancas" class="error radio-label">Bancas</label><input type="radio" name="opt_conhecimento" id="opt_conhecimento_indicacao" value="Indicação de amigos"><label for="opt_conhecimento_indicacao" class="error radio-label">Indicação de amigos</label><input type="radio" name="opt_conhecimento" id="opt_conhecimento_consultorio" value="Consultório"><label for="opt_conhecimento_consultorio" class="error radio-label">Consultório</label><input type="radio" name="opt_conhecimento" id="opt_conhecimento_internet" value="Internet"><label for="opt_conhecimento_internet" class="error radio-label">Internet</label><input type="radio" name="opt_conhecimento" value="" id="opt_conhecimento_outros_radio"><label for="opt_conhecimento_outros_radio" class="error radio-label">Outro</label><input type="text" class="outros-text" id="opt_conhecimento_outros_text" readonly></p>');
 """

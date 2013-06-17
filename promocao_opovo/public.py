@@ -33,7 +33,7 @@ class Public(object):
     def addCadastro(self, id_conteudo, cpf=None, rg=None, data_nascimento=None, nome=None,
                     endereco=None, complemento=None, bairro=None, cep=None, email=None,
                     profissao=None, faculdade=None, curso=None, facebook=None, twitter=None, fone1=None, fone2=None,
-                    fone3=None, anexo=None, frase=None, 
+                    fone3=None, anexo=None, frase=None, opt_midia=None, opt_leitor=None, opt_cenario=None, opt_conhecimento=None,
                     opt_parceiro=None, opt_opovo=None):
         """
             cadastra participante da promocao
@@ -41,7 +41,7 @@ class Public(object):
         try:
             conteudo = self._getConteudoPublicado(id_conteudo=id_conteudo)
             for i in conteudo['campos']:
-                if (i['nome'] != 'complemento' and i['nome'] != 'fone2' and i['nome'] != 'fone3' and i['nome'] != 'opt_parceiro' and i['nome'] != 'opt_opovo' and i['nome'] != 'facebook' and i['nome'] != 'twitter'):
+                if (i['nome'] != 'complemento' and i['nome'] != 'fone2' and i['nome'] != 'fone3' and i['nome'] != 'opt_parceiro' and i['nome'] != 'opt_opovo' and i['nome'] != 'facebook' and i['nome'] != 'twitter' and i['nome'] != 'opt_conhecimento'):
                     if not eval(i['nome']):
                         #algum campo não for preenchido
                         return 3
@@ -84,6 +84,10 @@ class Public(object):
                       fone3=fone3,
                       anexo=anexo,
                       frase=frase,
+                      opt_midia=opt_midia,
+                      opt_leitor=opt_leitor,
+                      opt_cenario=opt_cenario,
+                      opt_conhecimento=opt_conhecimento,
                       opt_parceiro=opt_parceiro,
                       opt_opovo=opt_opovo)
             return 0
