@@ -102,7 +102,7 @@ class Plug:
     # hurdle
 
     @dbconnectionplug
-    def _getContent(self, year, month, day, page):
+    def _getContent(self, year, month, day, page, editorial):
         """
         """
         ##select titulo, retranca from noticia_132346504881.conteudo
@@ -114,7 +114,7 @@ class Plug:
         data2 = "{0}-{1}-{2} 23:59".format(year, month, day)
 
         #retranca = "{0}_{1}{2}%{3}%".format(year, day, month, page)
-        retranca = "{0}_{1}{2}[a-zA-Z]*[0-9][0-9]{3}".format(year, day, month, page)
+        retranca = "{0}_{1}{2}{4}{3}[0-9][0-9]".format(year, day, month, page, editorial)
 
         return self.execSql("select_impresso_paginas",
                             schema=buffer("noticia_132346504881"),
