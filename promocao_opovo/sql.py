@@ -32,6 +32,19 @@ select_conteudo_cadastros = ("SELECT * "
 "FROM rschemar.cadastro "
 "WHERE id_conteudo=%(id_conteudo)i ORDER BY sequencial ASC")
 
+select_conteudo_campos_custom = ("SELECT * "
+"FROM rschemar.campos_custom "
+"WHERE id_conteudo=%(id_conteudo)i ORDER BY ordem ASC")
+
+select_campos_custom_itens_multiescolha = ("SELECT * "
+"FROM rschemar.itens_multiescolha "
+"WHERE id_campos_custom=%(id_campos_custom)i ORDER BY ordem ASC")
+
+select_cadastro_campos_custom = ("SELECT cacu.nome_campo, caca.valor "
+"FROM rschemar.cadastro_campos_custom caca "
+"INNER JOIN rschemar.campos_custom cacu ON cacu.id_campos_custom=caca.id_campos_custom "
+"WHERE caca.id_cadastro=%(id_cadastro)i")
+
 select_conteudo_cadastro_vencedor = ("SELECT * "
 "FROM rschemar.cadastro "
 "WHERE id_conteudo=%(id_conteudo)i "
@@ -50,6 +63,10 @@ select_maxval_sequencial_conteudo_cadastros = ("SELECT MAX(sequencial) "
 select_nextval_conteudo = ("SELECT NEXTVAL('rschemar.conteudo_id_conteudo_seq'::text) as id")
 
 select_nextval_cadastro = ("SELECT NEXTVAL('rschemar.cadastro_id_cadastro_seq'::text) as id")
+
+select_nextval_campos_custom = ("SELECT NEXTVAL('rschemar.campos_custom_id_campos_custom_seq'::text) as id")
+
+select_nextval_itens_multiescolha = ("SELECT NEXTVAL('rschemar.itens_multiescolha_id_itens_multiescolha_seq'::text) as id")
 
 select_status_content = ("SELECT publicado FROM rschemar.conteudo "
 "WHERE id_conteudo=%(id_conteudo)i")
@@ -102,6 +119,23 @@ insert_cadastro = ("INSERT INTO rschemar.cadastro (id_cadastro, id_conteudo, seq
 "%(profissao)s, %(faculdade)s, %(curso)s, %(facebook)s, %(twitter)s, %(fone1)s, %(fone2)s, %(fone3)s, %(anexo)s, "
 "%(frase)s, %(opt_midia)s, %(opt_leitor)s, %(opt_cenario)s, %(opt_conhecimento)s, %(opt_parceiro)s, %(opt_opovo)s, now())")
 
+insert_campos_custom = ("INSERT INTO rschemar.campos_custom (id_conteudo, nome_campo, attr_id_name_campo, "
+"tipo_campo, full_width, obrigatorio, ordem) VALUES (%(id_conteudo)d, %(nome_campo)s, %(attr_id_name_campo)s, "
+"%(tipo_campo)s, %(full_width)s, %(obrigatorio)s, %(ordem)i)")
+
+insert_campos_customi = ("INSERT INTO rschemar.campos_custom (id_campos_custom, id_conteudo, nome_campo, attr_id_name_campo, "
+"tipo_campo, full_width, obrigatorio, ordem) VALUES (%(id_campos_custom)d, %(id_conteudo)d, %(nome_campo)s, %(attr_id_name_campo)s, "
+"%(tipo_campo)s, %(full_width)s, %(obrigatorio)s, %(ordem)i)")
+
+insert_itens_multiescolha = ("INSERT INTO rschemar.itens_multiescolha (id_campos_custom, value, ordem) "
+"VALUES (%(id_campos_custom)d, %(value)s, %(ordem)i)")
+
+insert_itens_multiescolhai = ("INSERT INTO rschemar.itens_multiescolha (id_itens_multiescolha, id_campos_custom, value, ordem) "
+"VALUES (%(id_itens_multiescolha)d, %(id_campos_custom)d, %(value)s, %(ordem)i)")
+
+insert_cadastro_campos_custom = ("INSERT INTO rschemar.cadastro_campos_custom (id_cadastro, id_campos_custom, valor) "
+"VALUES (%(id_cadastro)d, %(id_campos_custom)d, %(valor)s)")
+
 update_conteudo = ("UPDATE rschemar.conteudo SET titulo=%(titulo)s, cartola=%(cartola)s, "
 "descricao=%(descricao)s, editor=%(editor)s, editor2=%(editor2)s, regulamento=%(regulamento)s, imagem_topo_list=%(imagem_topo_list)s, imagem_rodape=%(imagem_rodape)s, "
 "imagem_bg_topo=%(imagem_bg_topo)s, imagem_bg_rodape=%(imagem_bg_rodape)s, cor=%(cor)s, cadastro_unico=%(cadastro_unico)s, vencedor=%(vencedor)s, "
@@ -112,7 +146,8 @@ delete_conteudo = ("DELETE FROM rschemar.conteudo WHERE id_conteudo=%(id_conteud
 
 delete_destaque = ("DELETE FROM rschemar.destaque WHERE id_conteudo=%(id_conteudo)i")
 
-delete_dados_conteudo = ("DELETE FROM rschemar.conteudo_campo WHERE id_conteudo=%(id_conteudo)d")
+delete_dados_conteudo = ("DELETE FROM rschemar.conteudo_campo WHERE id_conteudo=%(id_conteudo)d; "
+"DELETE FROM rschemar.campos_custom WHERE id_conteudo=%(id_conteudo)d;")
 
 permissions = """
   GRANT USAGE ON SCHEMA rschemar TO %(user)s;
@@ -120,6 +155,9 @@ permissions = """
   GRANT SELECT ON rschemar.campo TO %(user)s;
   GRANT SELECT ON rschemar.conteudo_campo TO %(user)s;
   GRANT SELECT, INSERT ON rschemar.cadastro TO %(user)s;
+  GRANT SELECT, INSERT ON rschemar.campos_custom TO %(user)s;
+  GRANT SELECT, INSERT ON rschemar.itens_multiescolha TO %(user)s;
+  GRANT SELECT, INSERT ON rschemar.cadastro_campos_custom TO %(user)s;
   GRANT SELECT ON rschemar.destaque TO %(user)s;
 """
 
@@ -213,6 +251,51 @@ structure = """
         ON UPDATE CASCADE
   );
   CREATE INDEX rschemar_conteudo_campo_id_conteudo_index ON rschemar.conteudo_campo USING btree (id_conteudo);
+
+  CREATE TABLE rschemar.campos_custom (
+    id_campos_custom SERIAL NOT NULL,
+    id_conteudo INT NOT NULL,
+    nome_campo VARCHAR NULL,
+    attr_id_name_campo VARCHAR NULL,
+    tipo_campo VARCHAR NULL,
+    full_width BOOLEAN DEFAULT 'False',
+    obrigatorio BOOLEAN DEFAULT 'False',
+    ordem INT NULL,
+    PRIMARY KEY(id_campos_custom),
+    FOREIGN KEY(id_conteudo)
+      REFERENCES rschemar.conteudo(id_conteudo)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+  );
+  CREATE INDEX rschemar_campos_custom_id_conteudo_index ON rschemar.campos_custom USING btree (id_conteudo);
+
+  CREATE TABLE rschemar.itens_multiescolha (
+    id_itens_multiescolha SERIAL NOT NULL,
+    id_campos_custom INT NOT NULL,
+    value VARCHAR NULL,
+    ordem INT NULL,
+    PRIMARY KEY(id_itens_multiescolha),
+    FOREIGN KEY(id_campos_custom)
+      REFERENCES rschemar.campos_custom(id_campos_custom)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+  );
+  CREATE INDEX rschemar_itens_multiescolha_id_campos_custom_index ON rschemar.itens_multiescolha USING btree (id_campos_custom);
+
+  CREATE TABLE rschemar.cadastro_campos_custom(
+    id_cadastro INT NOT NULL,
+    id_campos_custom INT NOT NULL,
+    valor VARCHAR NULL,
+    FOREIGN KEY(id_cadastro)
+      REFERENCES rschemar.cadastro(id_cadastro)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY(id_campos_custom)
+      REFERENCES rschemar.campos_custom(id_campos_custom)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+  );
+  CREATE INDEX rschemar_cadastro_campos_custom_id_cadastro_index ON rschemar.cadastro_campos_custom USING btree (id_cadastro);
 
   CREATE TABLE rschemar.destaque (
     id_destaque SERIAL NOT NULL,

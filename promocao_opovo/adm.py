@@ -17,6 +17,7 @@
 # adm.py cinema_opovo
 # modificado por Eric Mesquita em 12/11/2012
 #
+import random
 from publica import settings
 from xlwt import *
 from time import time, strftime, strptime
@@ -68,10 +69,44 @@ class Adm(object):
             for j in campos:
                 cadastro[j['nome']] = i[j['nome']]
             cadastro['sequencial'] = i['sequencial']
+            cadastro['id_cadastro'] = i['id_cadastro']
             cadastro['data_hora_cadastro'] = i['data_hora_cadastro']
             retorno.append(cadastro)
         return retorno
         
+    @dbconnectionapp
+    def _getConteudoCamposCustom(self, id_conteudo):
+        """
+            returns all campos custom from conteudo
+
+            >>> self._getCampo()
+            <generator>
+        """
+        return self.execSql("select_conteudo_campos_custom",
+                             id_conteudo=int(id_conteudo))
+
+    @dbconnectionapp
+    def _getCamposCustomItensMultiescolha(self, id_campos_custom):
+        """
+            returns all campos custom from conteudo
+
+            >>> self._getCampo()
+            <generator>
+        """
+        return self.execSql("select_campos_custom_itens_multiescolha",
+                             id_campos_custom=int(id_campos_custom))
+
+    @dbconnectionapp
+    def _getCadastroCamposCustom(self, id_cadastro):
+        """
+            returns all campos custom from conteudo
+
+            >>> self._getCampo()
+            <generator>
+        """
+        return self.execSql("select_cadastro_campos_custom",
+                             id_cadastro=int(id_cadastro))
+
     @dbconnectionapp
     def _getConteudoCadastroVencedor(self, id_conteudo, sequencial):
         """
@@ -98,7 +133,9 @@ class Adm(object):
     @Permission("PERM APP")
     def addConteudo(self, id_site, id_treeapp, id_aplicativo,
                           titulo, descricao, regulamento, imagem_topo_list, 
-                          publicado_em, campos=[], cartola=None, editor=None, editor2=None, imagem_rodape=None, imagem_bg_topo=None, 
+                          publicado_em, campos=[], 
+                          cc_nome_campo=[], cc_tipo_campo=[], cc_full_width=[], cc_obrigatorio=[], cc_qtd_itens=[], im_value=[], 
+                          cartola=None, editor=None, editor2=None, imagem_rodape=None, imagem_bg_topo=None,
                           imagem_bg_rodape=None, cor=None, cadastro_unico=None, vencedor=None, atualizado_em=None, publicado=None,
                           titulo_destaque=None, descricao_destaque=None,
                           imagem_destaque=None, peso_destaque=None,
@@ -176,6 +213,32 @@ class Adm(object):
             self.execSqlBatch("insert_conteudo_campo", 
                               id_conteudo=id_conteudo,
                               id_campo=int(t))
+
+        # adicionar campos_custom
+        contador_itens = 0
+        for ncc in range(len(cc_nome_campo)):
+            if(cc_nome_campo[ncc] and cc_tipo_campo[ncc]):
+                id_campo_custom = self.execSql("select_nextval_campos_custom").next()["id"]
+                full_width = True if cc_full_width[ncc] else False
+                obrigatorio = True if cc_obrigatorio[ncc] else False
+                cc_attr_id_name_campo = ''.join(e for e in cc_nome_campo[ncc].lower() if e.isalnum())+"_"+str(id_campo_custom)
+                self.execSqlBatch("insert_campos_customi",
+                              id_campos_custom=id_campo_custom,
+                              id_conteudo=id_conteudo,
+                              nome_campo=cc_nome_campo[ncc],
+                              attr_id_name_campo=cc_attr_id_name_campo,
+                              tipo_campo=cc_tipo_campo[ncc],
+                              full_width=full_width,
+                              obrigatorio=obrigatorio,
+                              ordem=ncc+1)
+                # adicionar itens_multiescolha
+                for nim in range(int(cc_qtd_itens[ncc])):
+                    if(im_value[contador_itens]):
+                      self.execSqlBatch("insert_itens_multiescolha",
+                                    id_campos_custom=id_campo_custom,
+                                    value=im_value[contador_itens],
+                                    ordem=nim+1)
+                    contador_itens += 1
 
         # inserindo os destaques
         dados_destaque = []
@@ -258,7 +321,9 @@ class Adm(object):
     @Permission("PERM APP")
     def editConteudo(self, id_conteudo, id_site, id_treeapp, id_aplicativo,
                           titulo, descricao, regulamento, imagem_topo_list, 
-                          publicado_em, campos=[], cartola=None, editor=None, editor2=None, imagem_rodape=None, imagem_bg_topo=None, 
+                          publicado_em, campos=[], 
+                          cc_nome_campo=[], cc_tipo_campo=[], cc_full_width=[], cc_obrigatorio=[], cc_qtd_itens=[], im_value=[],  
+                          cartola=None, editor=None, editor2=None, imagem_rodape=None, imagem_bg_topo=None, 
                           imagem_bg_rodape=None, cor=None, cadastro_unico=None, vencedor=None, atualizado_em=None, publicado=None,
                           titulo_destaque=None, descricao_destaque=None,
                           imagem_destaque=None, peso_destaque=None,
@@ -341,6 +406,32 @@ class Adm(object):
             self.execSqlBatch("insert_conteudo_campo",
                               id_conteudo=int(id_conteudo),
                               id_campo=int(dir))
+
+        # adicionar campos_custom
+        contador_itens = 0
+        for ncc in range(len(cc_nome_campo)):
+            if(cc_nome_campo[ncc] and cc_tipo_campo[ncc]):
+                id_campo_custom = self.execSql("select_nextval_campos_custom").next()["id"]
+                full_width = True if cc_full_width[ncc] else False
+                obrigatorio = True if cc_obrigatorio[ncc] else False
+                cc_attr_id_name_campo = ''.join(e for e in cc_nome_campo[ncc].lower() if e.isalnum())+"_"+str(id_campo_custom)
+                self.execSqlBatch("insert_campos_customi",
+                              id_campos_custom=id_campo_custom,
+                              id_conteudo=int(id_conteudo),
+                              nome_campo=cc_nome_campo[ncc],
+                              attr_id_name_campo=cc_attr_id_name_campo,
+                              tipo_campo=cc_tipo_campo[ncc],
+                              full_width=full_width,
+                              obrigatorio=obrigatorio,
+                              ordem=ncc+1)
+                # adicionar itens_multiescolha
+                for nim in range(int(cc_qtd_itens[ncc])):
+                    if(im_value[contador_itens]):
+                      self.execSqlBatch("insert_itens_multiescolha",
+                                    id_campos_custom=id_campo_custom,
+                                    value=im_value[contador_itens],
+                                    ordem=nim+1)
+                    contador_itens += 1
 
         # inserindo os destaques
         dados_destaque = []

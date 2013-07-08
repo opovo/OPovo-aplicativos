@@ -29,12 +29,22 @@ class Public(object):
     """
 
     @dbconnectionapp
+    def getConteudoCamposCustom(self, id_conteudo):
+        """
+            returns all campos custom from conteudo
+
+            >>> self._getCampo()
+            <generator>
+        """
+        return [i for i in self.execSql("select_conteudo_campos_custom", id_conteudo=int(id_conteudo))]
+
+    @dbconnectionapp
     @jsoncallback
     def addCadastro(self, id_conteudo, cpf=None, rg=None, data_nascimento=None, nome=None,
                     endereco=None, complemento=None, bairro=None, cep=None, email=None,
                     profissao=None, faculdade=None, curso=None, facebook=None, twitter=None, fone1=None, fone2=None,
                     fone3=None, anexo=None, frase=None, opt_midia=None, opt_leitor=None, opt_cenario=None, opt_conhecimento=None,
-                    opt_parceiro=None, opt_opovo=None):
+                    opt_parceiro=None, opt_opovo=None, cadastro_campos_custom={}):
         """
             cadastra participante da promocao
         """
@@ -61,7 +71,7 @@ class Public(object):
                 sequencial = int(sequencial)+1
             else:
                 sequencial = 1
-            self.execSqlu("insert_cadastro",
+            self.execSqlBatch("insert_cadastro",
                       id_cadastro=int(id_cadastro),
                       id_conteudo=int(id_conteudo),
                       sequencial=int(sequencial),
@@ -90,6 +100,20 @@ class Public(object):
                       opt_conhecimento=opt_conhecimento,
                       opt_parceiro=opt_parceiro,
                       opt_opovo=opt_opovo)
+            
+            #adicionar campos_custom
+            if(cadastro_campos_custom):
+                for i in cadastro_campos_custom:
+                    if(isinstance(cadastro_campos_custom[i], (list))):
+                        valor = ""
+                        for j in cadastro_campos_custom[i]:
+                            valor += j+' '
+                        cadastro_campos_custom[i] = valor
+                    self.execSqlBatch("insert_cadastro_campos_custom",
+                              id_cadastro=int(id_cadastro),
+                              id_campos_custom=int(i),
+                              valor=cadastro_campos_custom[i])
+            self.execSqlCommit()
             return 0
         except:
             #erro tente novamente
