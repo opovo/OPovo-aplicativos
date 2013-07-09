@@ -508,6 +508,7 @@ class Adm(object):
         ws0 = wb.add_sheet('Participantes', cell_overwrite_ok=True)
         row_number=1
         for row in cadastros:
+            campos_custom = [i for i in self._getCadastroCamposCustom(id_cadastro=row['id_cadastro'])]
             column_num=0
             ws0.write(0,column_num,self.decoder("sequencial"))
             ws0.write(row_number,column_num,self.decoder(row['sequencial']))
@@ -515,6 +516,10 @@ class Adm(object):
             for item in campos:
                 ws0.write(0,column_num,self.decoder(item['nome']))
                 ws0.write(row_number,column_num,self.decoder(row[item['nome']]))
+                column_num=column_num+1
+            for item in campos_custom:
+                ws0.write(0,column_num,self.decoder(item['nome_campo']))
+                ws0.write(row_number,column_num,self.decoder(item['valor']))
                 column_num=column_num+1
             ws0.write(0,column_num,self.decoder("data_hora_cadastro"))
             ws0.write(row_number,column_num,self.decoder(row['data_hora_cadastro']))
