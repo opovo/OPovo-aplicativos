@@ -274,6 +274,16 @@ class Adm(object):
         self._addLog("Novo curso cadastrado '%s'" % titulo)
         return "Curso cadastrado com sucesso."
 
+    @dbconnectionapp
+    @serialize
+    @Permission("PERM APP")
+    def delCadastro(self, id_cadastro):
+        """
+        """
+        self.execSqlu("delete_cadastrou",
+                          id_cadastro=int(id_cadastro))
+        return "Cadastro deletado com sucesso."
+
 
     @dbconnectionapp
     @Permission("PERM APP")

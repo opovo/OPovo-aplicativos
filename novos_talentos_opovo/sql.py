@@ -169,6 +169,8 @@ delete_prova = ("DELETE FROM rschemar.prova WHERE id_conteudo=%(id_conteudo)i")
 
 delete_cadastro = ("DELETE FROM rschemar.cadastro WHERE id_conteudo=%(id_conteudo)i")
 
+delete_cadastrou = ("DELETE FROM rschemar.cadastro WHERE id_cadastro=%(id_cadastro)i")
+
 delete_curso_superior = ("DELETE FROM rschemar.curso_superior WHERE id_cadastro=%(id_cadastro)i")
 
 delete_idioma = ("DELETE FROM rschemar.idioma WHERE id_cadastro=%(id_cadastro)i")
