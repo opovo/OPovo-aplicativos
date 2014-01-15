@@ -28,7 +28,7 @@ select_conteudo_provas = ("SELECT * "
 
 select_conteudo_cadastros = ("SELECT * "
 "FROM rschemar.cadastro "
-"WHERE id_conteudo=%(id_conteudo)i ORDER BY nome_completo ASC")
+"WHERE id_conteudo=%(id_conteudo)i ORDER BY data_hora_cadastro DESC")
 
 select_cpf_cadastros = ("SELECT COUNT(*) FROM rschemar.cadastro "
 "WHERE id_conteudo=%(id_conteudo)i AND cpf=%(cpf)s")
