@@ -260,8 +260,8 @@ class App(BaseApp, PortalUtils, Adm, Public):
             dados["title"] = i["titulo"]
             dados["created"] = i["publicado_em"] 
             dados["modified"] = i["atualizado_em"]
-            if i["descricao"]:
-                dados["description"] = i["description"]
+            #if i["descricao"]:
+            #    dados["description"] = i["description"]
 
         return dados 
 
